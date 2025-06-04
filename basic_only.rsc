@@ -32,15 +32,14 @@ add chain=input in-interface=ether1 protocol=tcp dst-port=8291 action=drop comme
 add chain=input in-interface=ether1 protocol=tcp dst-port=22 action=drop comment="Block SSH"
 add chain=input in-interface=ether1 protocol=tcp dst-port=23 action=drop comment="Block Telnet"
 
-# PERMITE HTTP E HTTPS (WEB SERVER)
-add chain=input in-interface=ether1 protocol=tcp dst-port=80,443 action=accept comment="Allow HTTP/HTTPS"
+
 
 # LIMITA CONEXÕES POR IP (Anti DDoS)
 add chain=input protocol=tcp dst-port=80,443 connection-limit=30,32 action=drop comment="Drop too many connections from same IP"
 
 # DETECTA E BLOQUEIA PORT SCANNERS
 /ip firewall address-list
-add list=port_scanners address=0.0.0.0 comment="Placeholder"
+add list=port_scanners address=0.0.0.0 comment="Observar"
 /ip firewall filter
 add chain=input protocol=tcp psd=21,3s,3,1 action=add-src-to-address-list \
     address-list=port_scanners address-list-timeout=1d comment="Detect Port Scans"
@@ -58,6 +57,9 @@ add chain=input protocol=tcp tcp-flags=syn connection-limit=30,32 action=drop co
 # LIMITA ICMP (PING)
 add chain=input protocol=icmp icmp-options=8:0 limit=5,10 action=accept comment="Limit PING"
 add chain=input protocol=icmp action=drop comment="Drop Excessive ICMP"
+
+# PERMITE HTTP E HTTPS (WEB SERVER)
+add chain=input in-interface=ether1 protocol=tcp dst-port=80,443 action=accept comment="Allow HTTP/HTTPS"
 
 # BLOQUEIA TUDO O RESTANTE
 add chain=input action=drop comment="Drop all other input"
